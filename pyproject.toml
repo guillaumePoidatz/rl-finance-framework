@@ -14,13 +14,14 @@ dependencies = [
   "requests",
   "Pillow",
   "gymnasium",
-  "gym",
   "dm-tree",
   "pyarrow",
   "scikit-learn",
   "torch",
   "lz4",
   "pytest",
+  "stable_baselines3",
+  "gym",
 ]
 
 
