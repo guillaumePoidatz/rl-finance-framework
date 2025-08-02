@@ -1,0 +1,37 @@
+[project]
+name = "rl-finance-framework"
+version = "0.1.0"
+description = "This framework has the ambition to make it easier to develop rl based trading strategy"
+authors = [
+    {name = "guillaume poidatz",email = "79081686+guillaumePoidatz@users.noreply.github.com"}
+]
+license = {text = "GPL-3.0"}
+readme = "README.md"
+requires-python = ">=3.11,<=3.12"
+
+packages = [
+  { include = "rl_finance_framework" }
+]
+
+dependencies = [
+  "pandas (>=2.3.0,<3.0.0)",
+  "numpy (>=2.3.1,<3.0.0)",
+  "PyQt5 (>=5.15.11,<6.0.0)",
+  "ccxt (>=4.4.91,<5.0.0)",
+  "mplcursors",
+  "ta",
+  "fsspec",
+  "pyarrow",
+  "gymnasium",
+  "dm-tree",
+  "scipy",
+  "scikit-learn",
+  "torch",
+  "lz4",
+  "pytest",
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
