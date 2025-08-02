@@ -1,15 +1,15 @@
-import os
-import argparse
-
-import ray
-from ray import tune
-
-from rl_finance_framework.config import (
-    ppo_config,
-)  # for One-way strategy
-# from config_long import ppo_config # for Long only strategy
-
 def main():
+    import os
+    import argparse
+
+    import ray
+    from ray import tune
+
+    from rl_finance_framework.config import (
+        ppo_config,
+    )  # for One-way strategy
+    # from config_long import ppo_config # for Long only strategy
+
     parser = argparse.ArgumentParser(
         description="RLlib training ressources configuration"
     )
