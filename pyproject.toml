@@ -9,10 +9,6 @@ license = {text = "GPL-3.0"}
 readme = "README.md"
 requires-python = ">=3.11,<=3.12"
 
-packages = [
-  { include = "rl_finance_framework" }
-]
-
 dependencies = [
   "pandas (>=2.3.0,<3.0.0)",
   "requests",
@@ -24,6 +20,8 @@ dependencies = [
   "torch",
   "lz4",
   "pytest",
+  "stable_baselines3",
+  "gym",
 ]
 
 
