@@ -1,0 +1,94 @@
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+name: Create Release and build package when merging to main
+
+jobs:
+  build-and-release::
+    name: Create Release and build package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+        
+      - name: Install pipx
+        run: |
+          python3 -m pip install --user pipx
+          python3 -m pipx ensurepath
+      
+      - name: Install Poetry in a venv with pipx
+        run: pipx install poetry
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Enable dynamic versioning plugin
+        run: poetry self add "poetry-dynamic-versioning[plugin]"
+
+      - name: Build package (wheel + sdist)
+        run: poetry build
+
+      - name: Compute asset paths
+        id: artifacts
+        run: |
+          echo "whl_path=$(ls dist/*.whl | head -n 1)" >> "$GITHUB_OUTPUT"
+          echo "sdist_path=$(ls dist/*.tar.gz | head -n 1)" >> "$GITHUB_OUTPUT"
+          echo "tag_name=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          
+      - name: Generate release notes
+        id: notes
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tag = process.env.TAG_NAME || context.ref.replace('refs/tags/','');
+            const res = await github.rest.repos.generateReleaseNotes({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: tag,
+            });
+            core.setOutput('body', res.data.body || '');
+        env:
+          TAG_NAME: ${{ steps.artifacts.outputs.tag_name }}
+      
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.artifacts.outputs.tag_name }}
+          release_name: ${{ steps.artifacts.outputs.tag_name }}
+          body: ${{ steps.notes.outputs.body }}
+          draft: false
+          prerelease: ${{ contains(steps.artifacts.outputs.tag_name, '-rc') || contains(steps.artifacts.outputs.tag_name, '-beta') || contains(steps.artifacts.outputs.tag_name, '-alpha') }}
+
+      - name: Upload wheel asset
+        if: ${{ steps.artifacts.outputs.whl_path != '' }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.artifacts.outputs.whl_path }}
+          asset_name: ${{ steps.artifacts.outputs.whl_path || 'package.whl' }}
+          asset_content_type: application/zip
+
+      - name: Upload sdist asset
+        if: ${{ steps.artifacts.outputs.sdist_path != '' }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.artifacts.outputs.sdist_path }}
+          asset_name: ${{ steps.artifacts.outputs.sdist_path || 'package.tar.gz' }}
+          asset_content_type: application/gzip
+
+      

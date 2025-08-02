@@ -1,0 +1,24 @@
+name: Pull Request - Check Single Commit
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check_single_commit:
+    name: Check Single Commit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: |
+          COMMITS=$(gh pr view ${{ github.event.pull_request.number }} --json commits --jq '.commits | length')
+          echo "Number of commits in this PR: $COMMITS"
+          if [ "$COMMITS" -ne 1 ]; then
+            echo "❌ This pull request must contain exactly one commit (squash before merging)."
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
