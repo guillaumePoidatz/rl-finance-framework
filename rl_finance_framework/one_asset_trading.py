@@ -1,6 +1,5 @@
 import os
 import argparse
-from utils.training_ressources_config import TrainingRessourcesConfig
 
 import ray
 from ray import tune
