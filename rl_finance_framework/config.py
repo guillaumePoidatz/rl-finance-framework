@@ -20,6 +20,7 @@ num_envs_per_env_runner = 1
 num_obs_in_history = 168
 num_cpus_per_learner = 7
 num_learners = 1
+num_gpus_per_learner = 0
 original_lr = 5e-5
 
 # create RL agent
@@ -102,7 +103,7 @@ ppo_config = (
     .learners(
         num_learners=1,
         num_cpus_per_learner=num_cpus_per_learner,
-        num_gpus_per_learner=0,
+        num_gpus_per_learner=num_gpus_per_learner,
     )
     .debugging(
         log_level="WARN"  # DEBUG INFO WARN ERROR CRITICAL
