@@ -21,6 +21,7 @@ dependencies = [
   "pytest",
   "stable_baselines3",
   "gym",
+  "ray",
 ]
 
 [build-system]

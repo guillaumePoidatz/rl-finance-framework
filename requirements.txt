@@ -1,0 +1,16 @@
+pandas>=2.3.0,<3.0.0
+requests
+Pillow
+gymnasium
+dm-tree
+pyarrow
+scikit-learn
+torch
+lz4
+pytest
+stable_baselines3
+gym
+pythonjsonlogger
+ray[rllib]
+numpy
+matplotlib
