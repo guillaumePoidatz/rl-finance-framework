@@ -22,6 +22,7 @@ dependencies = [
   "stable_baselines3",
   "gym",
   "ray",
+  "python-json-logger",
 ]
 
 [build-system]
