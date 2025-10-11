@@ -49,7 +49,7 @@ def main():
     args = parser.parse_args()
 
     ppo_config["num_env_runners"] = args.num_env_runners
-    ppo_config["num_envs_per_worker"] = args.num_envs_per_runner
+    ppo_config["num_envs_per_runner"] = args.num_envs_per_runner
     ppo_config["num_gpus_per_learner"] = args.num_gpus_per_learner
     ppo_config["num_cpus_per_learner"] = args.num_cpus_per_learner
     ppo_config["num_learners"] = args.num_learners
