@@ -4,14 +4,10 @@ import os.path as osp
 import gym
 from collections import defaultdict
 import torch
-import numpy as np
-import argparse
-import json
 
 from stable_baselines3.common.vec_env.vec_frame_stack import VecFrameStack
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.vec_env.vec_normalize import VecNormalize
-from stable_baselines3.common.atari_wrappers import AtariWrapper
 from stable_baselines3.common.logger import *
 from stable_baselines3.common.monitor import *
 
