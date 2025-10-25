@@ -23,6 +23,13 @@ num_learners = 1
 num_gpus_per_learner = 0
 original_lr = 5e-5
 
+def get_package_root():
+    """Retourne le chemin racine du projet"""
+    current_file = os.path.abspath(__file__)
+    package_root = os.path.dirname(current_file)
+    return package_root
+
+
 # create RL agent
 ppo_config = (
     PPOConfig()
@@ -45,7 +52,7 @@ ppo_config = (
             "initial_random_allocated": 0,  # opened initial random long/short position up to initial_random_allocated $
             "regime": "training",
             "record_stats": False,  # True for backtesting
-            "logdir": os.getcwd(),
+            "logdir": get_package_root(),
             # "cold_start_steps": 0, # do nothing at the beginning of the episode
         },
     )
