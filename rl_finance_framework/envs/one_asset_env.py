@@ -1,6 +1,7 @@
 import gymnasium as gym
 import numpy as np
 import collections
+import logging
 
 
 from rl_finance_framework.utils.env_utils import GymSpaceBuilder
@@ -11,11 +12,16 @@ from rl_finance_framework.utils.env_utils import calculate_margin_isolated
 
 import random
 
+log = logging.getLogger(__name__)
+
+
 class LearningCryptoEnv(gym.Env):
     def __init__(self, **env_config):
         super().__init__()
 
         directory_name = env_config.get("logdir", "")
+        log.info(f"Environment log directory: {directory_name}")
+
         self.lookback_window_len = env_config.get("lookback_window_len")
         dataset_name = env_config.get("dataset_name")
         self.open_fee: float = env_config.get("open_fee")
