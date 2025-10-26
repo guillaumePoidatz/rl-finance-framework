@@ -42,7 +42,7 @@ class LearningCryptoEnv(gym.Env):
         self.order_size = env_config.get("order_size")
 
         self.price_array, self.tech_array_total = DiskDataLoader(
-            directoryName=directory_path, dataset_name=dataset_name
+            directory_path=directory_path, dataset_name=dataset_name
         ).load_dataset()
 
         self.scaler = Scaler(
