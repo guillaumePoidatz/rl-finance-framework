@@ -100,9 +100,9 @@ class DiskDataLoader:
 
         try:
             price_outfile = self.path_dataset.joinpath("price_outfile.npy")
+            path_price_outfile_string = price_outfile.__fspath__()
 
-            with price_outfile.open("rb") as f:
-                self.price_array_total = np.load(f, mmap_mode="r")
+            self.price_array_total = np.load(path_price_outfile_string, mmap_mode="r")
         except Exception as e:
             log.error(f"Error loading price_outfile.npy: {e}")
             log.info(f"price_outfile.npy does not exist in {format(self.path_dataset)}")
@@ -110,12 +110,14 @@ class DiskDataLoader:
 
         try:
             metrics_outfile = self.path_dataset.joinpath("metrics_outfile.npy")
+            path_metrics_outfile_string = metrics_outfile.__fspath__()
 
-            with metrics_outfile.open("rb") as f:
-                self.tech_array_total = np.load(f, mmap_mode="r")
+            self.tech_array_total = np.load(path_metrics_outfile_string, mmap_mode="r")
         except Exception as e:
             log.error(f"Error loading metrics_outfile.npy: {e}")
-            log.info("metrics_outfile.npy does not exist in {format(self.path_dataset}")
+            log.info(
+                f"metrics_outfile.npy does not exist in {format(self.path_dataset)}"
+            )
             self.tech_array_total = None
 
     def load_dataset(self) -> Tuple[np.ndarray, np.ndarray]:
