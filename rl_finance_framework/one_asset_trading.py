@@ -46,6 +46,18 @@ def main():
     parser.add_argument(
         "--num-iterations", type=int, default=2000, help="Number of training iterations"
     )
+    parser.add_argument(
+        "--gcs-execution",
+        type=bool,
+        default=False,
+        help="Whether or not the training is done using google cloud platform",
+    )
+    parser.add_argument(
+        "--container-gcs-uri",
+        type=str,
+        default="",
+        help="If done using GCS, the URI of the container containing this package",
+    )
     args = parser.parse_args()
 
     ppo_config["num_env_runners"] = args.num_env_runners

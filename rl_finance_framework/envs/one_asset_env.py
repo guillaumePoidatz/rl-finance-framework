@@ -19,8 +19,8 @@ class LearningCryptoEnv(gym.Env):
     def __init__(self, **env_config):
         super().__init__()
 
-        directory_name = env_config.get("logdir", "")
-        log.info(f"Environment log directory: {directory_name}")
+        directory_path = env_config.get("logdir", "")
+        log.info(f"Environment log directory: {directory_path}")
 
         self.lookback_window_len = env_config.get("lookback_window_len")
         dataset_name = env_config.get("dataset_name")
@@ -42,7 +42,7 @@ class LearningCryptoEnv(gym.Env):
         self.order_size = env_config.get("order_size")
 
         self.price_array, self.tech_array_total = DiskDataLoader(
-            directoryName=directory_name, dataset_name=dataset_name
+            directoryName=directory_path, dataset_name=dataset_name
         ).load_dataset()
 
         self.scaler = Scaler(

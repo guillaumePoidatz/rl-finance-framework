@@ -1,5 +1,3 @@
-import os
-
 from ray.tune import registry
 from ray.rllib.core.rl_module.rl_module import RLModuleSpec
 from ray.rllib.algorithms.ppo import PPOConfig
@@ -10,6 +8,7 @@ from rl_finance_framework.envs.one_asset_env import (
 from rl_finance_framework.models.one_asset_trade_transformer import (
     oneAssetTradeTransformer,
 )
+from importlib.resources import files
 
 registry.register_env(
     name="CryptoEnv", env_creator=lambda env_config: LearningCryptoEnv(**env_config)
@@ -22,13 +21,6 @@ num_cpus_per_learner = 7
 num_learners = 1
 num_gpus_per_learner = 0
 original_lr = 5e-5
-
-def get_package_root():
-    """Retourne le chemin racine du projet"""
-    current_file = os.path.abspath(__file__)
-    package_root = os.path.dirname(current_file)
-    return package_root
-
 
 # create RL agent
 ppo_config = (
@@ -52,7 +44,7 @@ ppo_config = (
             "initial_random_allocated": 0,  # opened initial random long/short position up to initial_random_allocated $
             "regime": "training",
             "record_stats": False,  # True for backtesting
-            "logdir": get_package_root(),
+            "logdir": files("rl_finance_framework"),
             # "cold_start_steps": 0, # do nothing at the beginning of the episode
         },
     )

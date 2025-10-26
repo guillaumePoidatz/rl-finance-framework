@@ -3,7 +3,9 @@ import os
 from gymnasium import spaces
 from sklearn.preprocessing import RobustScaler
 from typing import Tuple, Dict, Any
+import logging
 
+log = logging.getLogger(__name__)
 
 def calculate_margin_isolated(
     coins_short=0,
@@ -86,29 +88,32 @@ class GymSpaceBuilder:
 
 
 class DiskDataLoader:
-    def __init__(self, directoryName, dataset_name: str = "dataset") -> None:
+    def __init__(self, directory_path, dataset_name: str = "dataset") -> None:
         super().__init__()
         self.dataset_name = dataset_name
 
-        self.path_root = directoryName + "/data"
+        self.path_root = directory_path.joinpath("data")
 
-        self.path_dataset = os.path.join(self.path_root, self.dataset_name)
+        self.path_dataset = self.path_root.joinpath(self.dataset_name)
 
         try:
-            self.price_array_total = np.load(
-                os.path.join(self.path_dataset, "price_outfile.npy"), mmap_mode="r"
-            )
+            price_outfile = self.path_dataset.joinpath("price_outfile.npy")
+
+            with price_outfile.open("rb") as f:
+                self.price_array_total = np.load(f, mmap_mode="r")
         except:
-            print("price_outfile.npy does not exist in {}".format(self.path_dataset))
+            log.info("price_outfile.npy does not exist in {}".format(self.path_dataset))
             self.price_array_total = None
 
         try:
-            self.tech_array_total = np.load(
-                os.path.join(self.path_dataset, "metrics_outfile.npy"),
-                mmap_mode="r",
-            )
+            metrics_outfile = self.path_dataset.joinpath("metrics_outfile.npy")
+
+            with metrics_outfile.open("rb") as f:
+                self.tech_array_total = np.load(f, mmap_mode="r")
         except:
-            print("metrics_outfile.npy does not exist in {}".format(self.path_dataset))
+            log.info(
+                "metrics_outfile.npy does not exist in {}".format(self.path_dataset)
+            )
             self.tech_array_total = None
 
     def load_dataset(self) -> Tuple[np.ndarray, np.ndarray]:
