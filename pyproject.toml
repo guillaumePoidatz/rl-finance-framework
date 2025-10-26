@@ -25,14 +25,6 @@ dependencies = [
   "python-json-logger",
 ]
 
-[tool.poetry]
-packages = [{ include = "rl_finance_framework" }]
-
-include = [
-  { path = "rl_finance_framework/data/**/*", format = "wheel" },
-  { path = "rl_finance_framework/data/**/*", format = "sdist" }
-]
-
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
