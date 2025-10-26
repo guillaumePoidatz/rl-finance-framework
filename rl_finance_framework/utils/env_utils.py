@@ -96,7 +96,7 @@ class DiskDataLoader:
         log.info(f"Files in path_root: {list(self.path_root.iterdir())}")
 
         self.path_dataset = self.path_root.joinpath(self.dataset_name)
-        log.info(f"Files in path_dataset: {list(self.path_root.iterdir())}")
+        log.info(f"Files in path_dataset: {list(self.path_dataset.iterdir())}")
 
         try:
             price_outfile = self.path_dataset.joinpath("price_outfile.npy")
