@@ -53,6 +53,9 @@ def main():
     ppo_config["num_gpus_per_learner"] = args.num_gpus_per_learner
     ppo_config["num_cpus_per_learner"] = args.num_cpus_per_learner
     ppo_config["num_learners"] = args.num_learners
+    ppo_config["train_batch_size_per_learner"] = (
+        args.num_env_runners * args.num_envs_per_env_runner * 168
+    )
 
     ray.shutdown()
     ray.init()
