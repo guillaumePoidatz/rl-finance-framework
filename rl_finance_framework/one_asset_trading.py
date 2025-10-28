@@ -20,7 +20,7 @@ def main():
         help="Number of environment runners (parallel rollout workers)",
     )
     parser.add_argument(
-        "-num_envs_per_env_runner",
+        "--num_envs_per_env_runner",
         type=int,
         default=1,
         help="Number of environments per environment runner",
