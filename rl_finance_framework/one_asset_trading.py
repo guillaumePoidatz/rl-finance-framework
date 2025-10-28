@@ -20,7 +20,7 @@ def main():
         help="Number of environment runners (parallel rollout workers)",
     )
     parser.add_argument(
-        "--num-envs-per-runner",
+        "-num_envs_per_env_runner",
         type=int,
         default=1,
         help="Number of environments per environment runner",
@@ -46,22 +46,10 @@ def main():
     parser.add_argument(
         "--num-iterations", type=int, default=2000, help="Number of training iterations"
     )
-    parser.add_argument(
-        "--gcs-execution",
-        type=bool,
-        default=False,
-        help="Whether or not the training is done using google cloud platform",
-    )
-    parser.add_argument(
-        "--container-gcs-uri",
-        type=str,
-        default="",
-        help="If done using GCS, the URI of the container containing this package",
-    )
     args = parser.parse_args()
 
     ppo_config["num_env_runners"] = args.num_env_runners
-    ppo_config["num_envs_per_runner"] = args.num_envs_per_runner
+    ppo_config["num_envs_per_env_runner"] = args.num_envs_per_env_runner
     ppo_config["num_gpus_per_learner"] = args.num_gpus_per_learner
     ppo_config["num_cpus_per_learner"] = args.num_cpus_per_learner
     ppo_config["num_learners"] = args.num_learners

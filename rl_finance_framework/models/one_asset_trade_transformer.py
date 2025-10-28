@@ -2,7 +2,7 @@ import logging
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from typing import List, Tuple, Dict, Optional, Any, NewType
+from typing import List, Tuple, Dict, Optional, Any
 
 from ray.rllib.algorithms.ppo.default_ppo_rl_module import DefaultPPORLModule
 from ray.rllib.core.rl_module.torch import TorchRLModule
