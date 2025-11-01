@@ -15,7 +15,7 @@ dependencies = [
   "gymnasium",
   "dm-tree",
   "pyarrow",
-  "scikit-learn",
+  "scikit-learn >=1.2.2",
   "torch",
   "lz4",
   "pytest",
