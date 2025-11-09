@@ -1,6 +1,7 @@
 import os
 import argparse
 
+import torch
 import ray
 from ray import tune
 
@@ -47,6 +48,9 @@ def main():
         "--num-iterations", type=int, default=2000, help="Number of training iterations"
     )
     args = parser.parse_args()
+
+    device = torch.device("cuda:0" if args.num_gpus_per_learner != 0 else "cpu")
+    torch.cuda.set_device(device)
 
     ppo_config["num_env_runners"] = args.num_env_runners
     ppo_config["num_envs_per_env_runner"] = args.num_envs_per_env_runner
