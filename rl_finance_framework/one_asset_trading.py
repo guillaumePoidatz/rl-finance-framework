@@ -46,12 +46,6 @@ def main():
     parser.add_argument(
         "--num-iterations", type=int, default=2000, help="Number of training iterations"
     )
-    parser.add_argument(
-        "--activate-log-color",
-        type=bool,
-        default=True,
-        help="Activate the colored logs",
-    )
     args = parser.parse_args()
 
     ppo_config["num_env_runners"] = args.num_env_runners
@@ -64,7 +58,7 @@ def main():
     )
 
     ray.shutdown()
-    ray.init(log_to_driver=False, _system_config={"log_color": args.activate_log_color})
+    ray.init()
 
     tune.run(
         "PPO",

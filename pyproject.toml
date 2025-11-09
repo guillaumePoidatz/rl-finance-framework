@@ -23,7 +23,6 @@ dependencies = [
   "gym",
   "ray>=2.5.0",
   "python-json-logger",
-  "colorful<0.5.8"
 ]
 
 [build-system]
