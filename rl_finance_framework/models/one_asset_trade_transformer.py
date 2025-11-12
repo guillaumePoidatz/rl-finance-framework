@@ -464,15 +464,17 @@ class Transformer(nn.Module):
 
         self.stem_output_concatenation = StemOutputConcatenation()
 
-        self.attention_blocks: List[AttentionBlock] = [
-            AttentionBlock(
-                num_heads=self.num_heads,
-                dropout_rate=self.dropout_rate,
-                d_obs_internal_enc=self.d_obs_internal_enc,
-                d_obs_external_enc=self.d_obs_external_enc,
-            )
-            for i in range(self.num_attn_blocks)
-        ]
+        self.attention_blocks = nn.ModuleList(
+            [
+                AttentionBlock(
+                    num_heads=self.num_heads,
+                    dropout_rate=self.dropout_rate,
+                    d_obs_internal_enc=self.d_obs_internal_enc,
+                    d_obs_external_enc=self.d_obs_external_enc,
+                )
+                for i in range(self.num_attn_blocks)
+            ]
+        )
 
         self.transformer_output_time_pooling = TransformerOutputTimePooling()
 
