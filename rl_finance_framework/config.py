@@ -73,7 +73,6 @@ ppo_config = (
         entropy_coeff=0.03,  # for exploration of action space
         kl_coeff=0.05,  # is set in order to slow down or speed up the training depending on kl_target
         kl_target=0.01,  # target of the divergence between two policies
-        num_epochs=10,
         use_gae=True,  # Generalized Advantage Estimation
         use_critic=True,  # use critic (value function) to compute the advantage
         lambda_=0.95,
@@ -82,6 +81,8 @@ ppo_config = (
         train_batch_size_per_learner=num_env_runners
         * num_envs_per_env_runner
         * num_obs_in_history,
+        minibatch_size=num_obs_in_history,
+        num_epochs=10,
     )
     .evaluation(
         evaluation_interval=1,
