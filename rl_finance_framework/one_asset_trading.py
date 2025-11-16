@@ -47,6 +47,12 @@ def main():
     parser.add_argument(
         "--num-iterations", type=int, default=2000, help="Number of training iterations"
     )
+    parser.add_argument(
+        "--storage-path",
+        type=str,
+        default="file://" + os.path.abspath("./results"),
+        help="Storage path for results and checkpoints",
+    )
     args = parser.parse_args()
 
     ppo_config["num_env_runners"] = args.num_env_runners
@@ -65,8 +71,7 @@ def main():
         "PPO",
         stop={"training_iteration": 2000},
         config=ppo_config,
-        storage_path="file://"
-        + os.path.abspath("./results"),  # default folder "~ray_results"
+        storage_path=args.storage_path,  # default folder "~ray_results"
         checkpoint_config={
             "checkpoint_frequency": 12,
             "checkpoint_at_end": False,
