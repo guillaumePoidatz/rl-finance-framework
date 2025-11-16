@@ -78,9 +78,7 @@ ppo_config = (
         lambda_=0.95,
         clip_param=0.3,  # limit the difference between two successive policies
         vf_clip_param=10,  #  limit the difference between two successive value functions
-        train_batch_size_per_learner=num_env_runners
-        * num_envs_per_env_runner
-        * num_obs_in_history,
+        train_batch_size_per_learner=num_obs_in_history * 2,
         minibatch_size=num_obs_in_history,
         num_epochs=10,
     )
