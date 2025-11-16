@@ -757,21 +757,8 @@ class oneAssetTradeTransformer(TorchRLModule, DefaultPPORLModule):
         embeddings: Optional[Any] = None,
     ) -> TensorType:
         if embeddings is None:
-            # Separate vf-encoder.
-            if hasattr(self.encoder, "critic_encoder"):
-                batch_ = batch
-                if self.is_stateful():
-                    # The recurrent encoders expect a `(state_in, h)`  key in the
-                    # input dict while the key returned is `(state_in, critic, h)`.
-                    batch_ = batch.copy()
-                    obs_history_flat = batch[Columns.OBS]
-                    batch_[Columns.STATE_IN] = batch[Columns.STATE_IN][CRITIC]
-                embeddings = self.encoder.critic_encoder(
-                    obs_history_flat=obs_history_flat
-                )[ENCODER_OUT]
-            # Shared encoder.
-            else:
-                obs_history_flat = batch[Columns.OBS]
+            obs_history_flat = batch[Columns.OBS]
+            with torch.no_grad():
                 embeddings = self.encoder(obs_history_flat=obs_history_flat)[
                     ENCODER_OUT
                 ][CRITIC]
