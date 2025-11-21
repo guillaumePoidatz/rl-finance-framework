@@ -79,7 +79,7 @@ ppo_config = (
         clip_param=0.3,  # limit the difference between two successive policies
         vf_clip_param=10,  #  limit the difference between two successive value functions
         train_batch_size_per_learner=num_obs_in_history * 2,
-        minibatch_size=num_obs_in_history,
+        # minibatch_size=num_obs_in_history,
         num_epochs=10,
     )
     .evaluation(

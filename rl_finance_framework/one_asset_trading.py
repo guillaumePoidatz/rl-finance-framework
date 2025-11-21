@@ -53,6 +53,12 @@ def main():
         default="file://" + os.path.abspath("./results"),
         help="Storage path for results and checkpoints",
     )
+    parser.add_argument(
+        "--rollout-fragment-length",
+        type=int,
+        default=168,
+        help="Length of the decision sequence",
+    )
     args = parser.parse_args()
 
     ppo_config["num_env_runners"] = args.num_env_runners
@@ -60,9 +66,7 @@ def main():
     ppo_config["num_gpus_per_learner"] = args.num_gpus_per_learner
     ppo_config["num_cpus_per_learner"] = args.num_cpus_per_learner
     ppo_config["num_learners"] = args.num_learners
-    ppo_config["rollout_fragment_length"] = ppo_config["num_obs_in_history"] // (
-        args.num_env_runners * args.num_envs_per_env_runner
-    )
+    ppo_config["rollout_fragment_length"] = args.rollout_fragment_length
     ppo_config["train_batch_size_per_learner"] = (
         args.num_env_runners
         * args.num_envs_per_env_runner
