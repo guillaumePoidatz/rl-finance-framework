@@ -19,8 +19,6 @@ dependencies = [
   "torch",
   "lz4",
   "pytest",
-  "stable_baselines3",
-  "gym",
   "ray>=2.5.0",
   "python-json-logger",
 ]
