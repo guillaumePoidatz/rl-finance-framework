@@ -19,7 +19,7 @@ dependencies = [
   "torch",
   "lz4",
   "pytest",
-  "ray>=2.5.0",
+  "ray>=2.50.0",
   "python-json-logger",
 ]
 
