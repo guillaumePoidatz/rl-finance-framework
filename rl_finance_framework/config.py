@@ -96,7 +96,7 @@ ppo_config = (
         rollout_fragment_length=num_obs_in_history,
         batch_mode="complete_episodes",
         preprocessor_pref=None,
-        gym_env_vectorize_mode=("ASYNC"),
+        gym_env_vectorize_mode=("async"),
     )
     .learners(
         num_learners=1,
