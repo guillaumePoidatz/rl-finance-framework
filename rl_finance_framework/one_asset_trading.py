@@ -59,6 +59,12 @@ def main():
         default=168,
         help="Length of the decision sequence",
     )
+    parser.add_argument(
+        "--minibatch-size",
+        type=int,
+        default=1000,
+        help="Size of the minibatch",
+    )
     args = parser.parse_args()
 
     ppo_config["num_env_runners"] = args.num_env_runners
@@ -72,7 +78,9 @@ def main():
         * args.num_envs_per_env_runner
         * ppo_config["rollout_fragment_length"]
     )
-
+    ppo_config["minibatch_size"] = min(
+        args.minibatch_size, ppo_config["train_batch_size_per_learner"]
+    )
     ray.shutdown()
     ray.init()
 
