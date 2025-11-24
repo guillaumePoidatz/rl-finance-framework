@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import List, Tuple, Dict, Optional, Any
+import time
 
 from ray.rllib.algorithms.ppo.default_ppo_rl_module import DefaultPPORLModule
 from ray.rllib.core.rl_module.torch import TorchRLModule
@@ -11,7 +12,7 @@ from ray.rllib.core.columns import Columns
 from ray.rllib.core.models.base import ACTOR, CRITIC, ENCODER_OUT, Model
 
 
-logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 # the input layer is transforming a flat encoding vector in different features tensors to train the model
@@ -490,9 +491,14 @@ class Transformer(nn.Module):
 
     def forward(self, obs_history_flat: torch.Tensor):
         # [Batch, DFlatHistory]
+
+        t_initial_forward = time.time()
+
         obs_history_flat = obs_history_flat
 
+        input_split_start = time.time()
         obs_logical_segments = self.input_split(obs_history_flat=obs_history_flat)
+        input_split_end = time.time()
 
         # [Batch, Time, DObsTime]
         obs_history_time = obs_logical_segments[0]
@@ -500,12 +506,13 @@ class Transformer(nn.Module):
         obs_history_candlesticks_btc = obs_logical_segments[
             2
         ]  # [Batch, Time, DObsCandlesticksBTC]
-
+        stem_layer_start = time.time()
         obs_logical_segments_enc = self.stem(
             obs_history_time=obs_history_time,
             obs_history_account=obs_history_account,
             obs_history_candlesticks_btc=obs_history_candlesticks_btc,
         )
+        stem_layer_end = time.time()
 
         obs_history_internal_enc = obs_logical_segments_enc[
             0
@@ -515,36 +522,52 @@ class Transformer(nn.Module):
         ]  # [Batch, Time, DObsExternalEnc]
 
         # [Batch, Time, DObsStemEnc]
+        concatenation_layer_start = time.time()
         obs_history_stem_enc = self.stem_output_concatenation(
             obs_history_internal_enc=obs_history_internal_enc,
             obs_history_external_enc=obs_history_external_enc,
         )
+        concatenation_layer_end = time.time()
 
         # [Batch, Time, DObsExternalEnc]
+        attention_layers_start = time.time()
         for i in range(self.num_attn_blocks):
             obs_history_external_enc = self.attention_blocks[i](
                 obs_history_internal_enc=obs_history_internal_enc,
                 obs_history_external_enc=obs_history_external_enc,
             )
+        attention_layers_end = time.time()
 
         obs_history_transformer_enc = (
             obs_history_external_enc  # [Batch, Time, DObsExternalEnc]
         )
 
+        pool_layer_start = time.time()
         # [Batch, DObsTranfEnc]
         current_obs_transformer_enc = self.transformer_output_time_pooling(
             obs_history_stem_enc=obs_history_stem_enc,
             obs_history_transformer_enc=obs_history_transformer_enc,
         )
 
-        """
-        actions_logits = self.action_branch(
-            inputs=current_obs_transformer_enc
-        )  # [Batch, NOutputs (actions)]
-        values = self.value_branch(
-            inputs=current_obs_transformer_enc
-        )  # [Batch, Const1]
-        """
+        t_final_forward = time.time()
+
+        # Logs globaux pour ce forward
+        log.debug(
+            "[Transformer] forward: total={:.6f}s | split={:.6f}s | stem={:.6f}s | "
+            "concat={:.6f}s | attn_total={:.6f}s | pool={:.6f}s | "
+            "B={} T={} D_in={}".format(
+                t_final_forward - t_initial_forward,
+                input_split_end - input_split_start,
+                stem_layer_end - stem_layer_start,
+                concatenation_layer_end - concatenation_layer_start,
+                attention_layers_end - attention_layers_start,
+                t_final_forward - pool_layer_start,
+                obs_history_flat.shape[0],
+                self.num_obs_in_history,
+                self.d_history_flat,
+            )
+        )
+
         return {
             ENCODER_OUT: {
                 ACTOR: current_obs_transformer_enc,
@@ -636,48 +659,6 @@ class oneAssetTradeTransformer(TorchRLModule, DefaultPPORLModule):
 
         self.pi = self.build_pi_head(framework=self.framework)
         self.vf = self.build_vf_head(framework=self.framework)
-
-        """
-        self.action_branch = ActionBranch(
-            num_inputs=2 * self.d_obs_external_enc + self.d_obs_internal_enc,
-            num_actions=self.num_outputs,
-        )
-        self.value_branch = ValueBranch(
-            num_inputs=2 * self.d_obs_external_enc + self.d_obs_internal_enc
-        )
-
-        """
-        """
-    def _forward(self, batch: Dict[str, TensorType], **kwargs) -> Dict[str, TensorType]:
-        # batch Dict[str, TensorType]
-        # state List[Tensor2[float32, Batch, Depth]]
-        # seq_lens Tensor1[int32, Batch]
-
-        # output
-        # Tuple[
-        # Tensor2[float32, Batch, NOutputs],
-        # List[Tensor2[float32, Batch, Depth]]]
-
-        # [Batch, DFlatHistory]
-        obs_history_flat = batch[Columns.OBS]
-
-        # [Batch, NOutputs]
-        action_logits: torch.Tensor
-        # [float32, Batch, Const1]
-        values_logits: torch.Tensor
-
-        action_logits, values_logits = self.model(obs_history_flat=obs_history_flat)
-
-        # [Batch, Const1]
-        self._value_out: torch.Tensor
-        self._value_out = values_logits
-
-        return {
-            Columns.ACTION_DIST_INPUTS: action_logits,
-            Columns.VF_PREDS: values_logits,
-        }
-
-        """
 
     def build_pi_head(self, framework: str) -> Model:
         """
