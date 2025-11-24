@@ -552,7 +552,7 @@ class Transformer(nn.Module):
         t_final_forward = time.time()
 
         # Logs globaux pour ce forward
-        log.debug(
+        log.info(
             "[Transformer] forward: total={:.6f}s | split={:.6f}s | stem={:.6f}s | "
             "concat={:.6f}s | attn_total={:.6f}s | pool={:.6f}s | "
             "B={} T={} D_in={}".format(
