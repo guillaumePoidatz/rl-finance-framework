@@ -4,6 +4,9 @@ import argparse
 import ray
 from ray import tune
 
+from rl_finance_framework.baseline_config import (
+    ppo_baseline_config,
+)
 from rl_finance_framework.config import (
     ppo_config,
 )  # for One-way strategy
@@ -65,6 +68,12 @@ def main():
         default=1000,
         help="Size of the minibatch",
     )
+    parser.add_argument(
+        "--configuration",
+        type=str,
+        default=ppo_baseline_config,
+        help="configuration template to use: ppo_baseline_config or ppo_config",
+    )
     args = parser.parse_args()
 
     ppo_config["num_env_runners"] = args.num_env_runners
@@ -87,7 +96,11 @@ def main():
     tune.run(
         "PPO",
         stop={"training_iteration": 2000},
-        config=ppo_config,
+        base_config=(
+            ppo_baseline_config
+            if args.configuration == "ppo_baseline_config"
+            else ppo_config
+        ),
         storage_path=args.storage_path,  # default folder "~ray_results"
         checkpoint_config={
             "checkpoint_frequency": 12,

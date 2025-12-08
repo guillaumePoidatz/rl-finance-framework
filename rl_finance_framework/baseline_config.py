@@ -17,7 +17,7 @@ num_gpus_per_learner = 1
 original_lr = 5e-5
 
 # create RL agent
-ppo_config = (
+ppo_baseline_config = (
     PPOConfig()
     .environment(
         env="CryptoEnv",
