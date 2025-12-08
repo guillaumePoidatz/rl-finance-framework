@@ -96,7 +96,7 @@ def main():
     tune.run(
         "PPO",
         stop={"training_iteration": 2000},
-        base_config=(
+        config=(
             ppo_baseline_config
             if args.configuration == "ppo_baseline_config"
             else ppo_config
