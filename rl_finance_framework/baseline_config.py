@@ -20,27 +20,7 @@ original_lr = 5e-5
 ppo_baseline_config = (
     PPOConfig()
     .environment(
-        env="CryptoEnv",
-        env_config={
-            "dataset_name": "dataset",  # .npy files should be in ./data/dataset/
-            "leverage": 2,  # leverage for perpetual futures
-            "episode_max_len": num_obs_in_history * 2,  # train episode length, 2 weeks
-            "lookback_window_len": num_obs_in_history,
-            "train_start": [2000, 7000, 12000, 17000, 22000],
-            "train_end": [6000, 11000, 16000, 21000, 26000],
-            "test_start": [6000, 11000, 16000, 21000, 26000],
-            "test_end": [7000, 12000, 17000, 22000, 29377 - 1],
-            "order_size": 50,  # dollars
-            "initial_capital": 1000,  # dollars
-            "open_fee": 0.12e-2,  # taker_fee
-            "close_fee": 0.12e-2,  # taker_fee
-            "maintenance_margin_percentage": 0.012,  # 1.2 percent
-            "initial_random_allocated": 0,  # opened initial random long/short position up to initial_random_allocated $
-            "regime": "training",
-            "record_stats": False,  # True for backtesting
-            "logdir": files("rl_finance_framework"),
-            # "cold_start_steps": 0, # do nothing at the beginning of the episode
-        },
+        env="CartPole-V1",
     )
     .training(
         model={
