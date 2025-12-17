@@ -20,7 +20,7 @@ original_lr = 5e-5
 ppo_baseline_config = (
     PPOConfig()
     .environment(
-        env="CartPole-V1",
+        env="CartPole",
     )
     .training(
         model={
