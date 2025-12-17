@@ -1,12 +1,5 @@
-from ray.tune import registry
 from ray.rllib.algorithms.ppo import PPOConfig
-
-from rl_finance_framework.envs.one_asset_env import LearningCryptoEnv
-from importlib.resources import files
-
-registry.register_env(
-    name="CryptoEnv", env_creator=lambda env_config: LearningCryptoEnv(**env_config)
-)
+from ray.rllib.core.rl_module.default_model_config import DefaultModelConfig
 
 num_env_runners = 1
 num_envs_per_env_runner = 1
@@ -22,23 +15,8 @@ ppo_baseline_config = (
     .environment(
         env="CartPole",
     )
+    .rl_module(model_config=DefaultModelConfig(fcnet_hiddens=[32, 32]))
     .training(
-        model={
-            # Active le modèle transformer intégré (GTrXL) de Ray.
-            "use_attention": True,
-            "attention_num_transformer_units": 3,  # ~ num_attn_blocks précédents
-            "attention_dim": 256,
-            "attention_num_heads": 4,
-            "attention_head_dim": 64,
-            "attention_memory_inference": num_obs_in_history,
-            "attention_memory_training": num_obs_in_history,
-            "attention_position_wise_mlp_dim": 256,
-            "attention_init_gru_gate_bias": 2.0,
-            "attention_use_n_prev_actions": 0,
-            "attention_use_n_prev_rewards": 0,
-            "max_seq_len": num_obs_in_history,
-            "vf_share_layers": True,
-        },
         lr=[[0, original_lr], [100, original_lr * (num_learners**0.5)]],
         gamma=0.995,  # 1 recent reward are more important (discount factor).
         grad_clip=30.0,  # max value of the gradient will be 30
@@ -50,7 +28,7 @@ ppo_baseline_config = (
         lambda_=0.95,
         clip_param=0.3,  # limit the difference between two successive policies
         vf_clip_param=10,  #  limit the difference between two successive value functions
-        train_batch_size=30000,
+        train_batch_size_per_learner=30000,
         minibatch_size=10000,
         num_epochs=10,
     )
@@ -77,5 +55,8 @@ ppo_baseline_config = (
     )
     .debugging(
         log_level="WARN"  # DEBUG INFO WARN ERROR CRITICAL
+    )
+    .api_stack(
+        enable_rl_module_and_learner=True, enable_env_runner_and_connector_v2=True
     )
 )
