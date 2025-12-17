@@ -71,10 +71,15 @@ def main():
     parser.add_argument(
         "--configuration",
         type=str,
-        default=ppo_baseline_config,
-        help="configuration template to use: ppo_baseline_config or ppo_config",
+        choices=["ppo_baseline_config", "ppo_config"],
+        default="ppo_baseline_config",
+        help="Configuration template to use",
     )
     args = parser.parse_args()
+
+    selected_config = (
+        ppo_baseline_config if args.configuration == "ppo_baseline_config" else ppo_config
+    )
 
     ppo_config["num_env_runners"] = args.num_env_runners
     ppo_config["num_envs_per_env_runner"] = args.num_envs_per_env_runner
@@ -95,12 +100,8 @@ def main():
 
     tune.run(
         "PPO",
-        stop={"training_iteration": 2000},
-        config=(
-            ppo_baseline_config
-            if args.configuration == "ppo_baseline_config"
-            else ppo_config
-        ),
+        stop={"training_iteration": args.num_iterations},
+        config=selected_config,
         storage_path=args.storage_path,  # default folder "~ray_results"
         checkpoint_config={
             "checkpoint_frequency": 12,
