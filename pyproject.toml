@@ -20,6 +20,9 @@ dependencies = [
   "pytest",
   "stable_baselines3",
   "gym",
+  "elegantrl @ git+https://github.com/AI4Finance-Foundation/ElegantRL.git#egg=elegantrl",
+  "ccxt",
+  "stockstats",
 ]
 
 [build-system]

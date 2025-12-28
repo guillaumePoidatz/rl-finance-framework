@@ -1,84 +1,111 @@
 import os
-import argparse
+import sys
+from pathlib import Path
+from argparse import ArgumentParser
+import logging
 
-import ray
-from ray import tune
+from rl_finance_framework.config import DATA_SAVE_DIR
+from rl_finance_framework.config import ERL_PARAMS
+from rl_finance_framework.config import INDICATORS
+from rl_finance_framework.config import RESULTS_DIR
+from rl_finance_framework.config import TENSORBOARD_LOG_DIR
+from rl_finance_framework.config import TEST_END_DATE
+from rl_finance_framework.config import TEST_START_DATE
+from rl_finance_framework.config import TRAIN_END_DATE
+from rl_finance_framework.config import TRAIN_START_DATE
+from rl_finance_framework.config import TRAINED_MODEL_DIR
+from rl_finance_framework.config_tickers import DOW_30_TICKER
+from rl_finance_framework.envs.stock_trading_env import (
+    StockTradingEnv,
+)
 
-from rl_finance_framework.config import (
-    ppo_config,
-)  # for One-way strategy
-# from config_long import ppo_config # for Long only strategy
+if __package__ is None or __package__ == "":
+    project_root = Path(__file__).resolve().parent.parent
+    sys.path.insert(0, project_root.as_posix())
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="RLlib training ressources configuration"
-    )
+
+def build_parser():
+    parser = ArgumentParser()
     parser.add_argument(
-        "--num-env-runners",
-        type=int,
-        default=1,
-        help="Number of environment runners (parallel rollout workers)",
+        "--mode",
+        dest="mode",
+        help="start mode, train, download_data backtest",
+        metavar="MODE",
+        default="train",
     )
+
     parser.add_argument(
-        "--num-envs-per-runner",
-        type=int,
-        default=1,
-        help="Number of environments per environment runner",
+        "--num-steps", type=int, default=3e7, help="Number of training iterations"
     )
-    parser.add_argument(
-        "--num-cpus-per-learner",
-        type=int,
-        default=1,
-        help="Number of CPUs allocated per learner process",
-    )
-    parser.add_argument(
-        "--num-learners",
-        type=int,
-        default=1,
-        help="Number of learner processes (for multi-GPU or distributed setup)",
-    )
-    parser.add_argument(
-        "--num-gpus-per-learner",
-        type=int,
-        default=0,
-        help="Number of GPUs to assign per learner process",
-    )
-    parser.add_argument(
-        "--num-iterations", type=int, default=2000, help="Number of training iterations"
-    )
-    args = parser.parse_args()
-
-    ppo_config["num_rollout_workers"] = args.num_env_runners
-    ppo_config["num_envs_per_worker"] = args.num_envs_per_runner
-    ppo_config["num_gpus_per_learner"] = args.num_gpus_per_learner
-    ppo_config["num_cpus_per_learner"] = args.num_cpus_per_learner
-    ppo_config["num_learners"] = args.num_learners
-
-    ray.shutdown()
-    ray.init()
-
-    tune.run(
-        "PPO",
-        stop={"training_iteration": 2000},
-        config=ppo_config,
-        storage_path="file://"
-        + os.path.abspath("./results"),  # default folder "~ray_results"
-        checkpoint_config={
-            "checkpoint_frequency": 12,
-            "checkpoint_at_end": False,
-            "num_to_keep": None,
-            # keep all the checkpoints (put a number x to keep the x last checkpoints only)
-        },
-        checkpoint_at_end=False,
-        keep_checkpoints_num=None,
-        verbose=2,
-        reuse_actors=False,
-        log_to_file=True,
-    )
-
-    # kind of algorithm that can be used : PPO DQN A3C DDPG SAC TD3 APPO IMPALA
-    # verbose : 0 = silent, 1 = default, 2 = verbose
+    return parser
 
 
+def check_and_make_directories(directories: list[str]):
+    for directory in directories:
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+
+def main() -> int:
+    parser = build_parser()
+    options = parser.parse_args()
+    check_and_make_directories(
+        [DATA_SAVE_DIR, TRAINED_MODEL_DIR, TENSORBOARD_LOG_DIR, RESULTS_DIR]
+    )
+
+    if options.mode == "train":
+        from rl_finance_framework.train import train
+
+        env = StockTradingEnv
+
+        kwargs = {}
+        train(
+            start_date=TRAIN_START_DATE,
+            end_date=TRAIN_END_DATE,
+            ticker_list=DOW_30_TICKER,
+            data_source="ccxt",
+            time_interval="1d",
+            technical_indicator_list=INDICATORS,
+            drl_lib="elegantrl",
+            env=env,
+            model_name="ppo",
+            cwd="./test_ppo",
+            erl_params=ERL_PARAMS,
+            break_step=options.num_steps,
+            kwargs=kwargs,
+        )
+    elif options.mode == "test":
+        from rl_finance_framework.test import test
+
+        env = StockTradingEnv
+
+        kwargs = {}
+
+        account_value_erl = test(  # noqa
+            start_date=TEST_START_DATE,
+            end_date=TEST_END_DATE,
+            ticker_list=DOW_30_TICKER,
+            data_source="ccxt",
+            time_interval="1d",
+            technical_indicator_list=INDICATORS,
+            drl_lib="elegantrl",
+            env=env,
+            model_name="ppo",
+            cwd="./test_ppo",
+            net_dimension=512,
+            kwargs=kwargs,
+        )
+    else:
+        raise ValueError("Wrong mode.")
+    return 0
+
+
+# Users can input the following command in terminal
+# python main.py --mode=train
+# python main.py --mode=test
 if __name__ == "__main__":
-    main()
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    )
+    raise SystemExit(main())
