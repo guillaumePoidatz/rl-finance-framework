@@ -209,10 +209,13 @@ __marimo__/
 # Mac os specifics
 .DS_Store
 
-# trading_enhance_software specifics
+# rl-finance-framework specifics
 to_cancel/
-data_folder
+datasets/
 results/
+data/
+tensorboard/
+test_*
 
 # admin credentials
 trading-enhance-software-pog-admin.json

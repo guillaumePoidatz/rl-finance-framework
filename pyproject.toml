@@ -1,7 +1,7 @@
 [project]
 
 name = "rl-finance-framework"
-version = "0.0.0"
+dynamic = ["version"]
 description = "This framework has the ambition to make it easier to develop rl based trading strategy"
 authors = [{ name = "guillaume poidatz", email = "79081686+guillaumePoidatz@users.noreply.github.com" }]
 license = { text = "GPL-3.0" }
@@ -21,16 +21,19 @@ dependencies = [
   "pytest",
   "ray>=2.50.0",
   "python-json-logger",
+  "pydantic",
+  "elegantrl @ git+https://github.com/AI4Finance-Foundation/ElegantRL.git#egg=elegantrl",
+  "ccxt",
+  "stockstats",
 ]
 
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.hatch.metadata]
+allow-direct-references = true
 
-[tool.poetry-dynamic-versioning]
-enable = true
-vcs = "git"
-style = "semver"                 
-pattern = "^v?(?P<base>\\d+\\.\\d+\\.\\d+)(?:-(?P<stage>alpha|beta|rc)\\.(?P<revision>\\d+))?$"
-format = "{base}"                
-# format = "{base}+{distance}.{commit}"  
+[build-system]
+requires = ["hatchling>=1.25.0", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
+tag-pattern = "^v?(?P<version>\\d+\\.\\d+\\.\\d+(?:-(?:alpha|beta|rc)\\.\\d+)?)$"

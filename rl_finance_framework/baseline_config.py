@@ -51,7 +51,7 @@ ppo_baseline_config = (
     .learners(
         num_learners=1,
         num_cpus_per_learner=num_cpus_per_learner,
-        num_gpus_per_learner=num_gpus_per_learner,
+        num_gpus_per_learner=0,
     )
     .debugging(
         log_level="WARN"  # DEBUG INFO WARN ERROR CRITICAL
