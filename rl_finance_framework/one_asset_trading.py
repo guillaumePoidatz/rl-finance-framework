@@ -15,8 +15,8 @@ from rl_finance_framework.config import TRAIN_END_DATE
 from rl_finance_framework.config import TRAIN_START_DATE
 from rl_finance_framework.config import TRAINED_MODEL_DIR
 from rl_finance_framework.config_tickers import DOW_30_TICKER
-from rl_finance_framework.envs.stock_trading_env import (
-    StockTradingEnv,
+from rl_finance_framework.envs.env_btc_ccxt import (
+    BitcoinEnv,
 )
 
 if __package__ is None or __package__ == "":
@@ -56,7 +56,7 @@ def main() -> int:
     if options.mode == "train":
         from rl_finance_framework.train import train
 
-        env = StockTradingEnv
+        env = BitcoinEnv
 
         kwargs = {}
         train(
@@ -77,7 +77,7 @@ def main() -> int:
     elif options.mode == "test":
         from rl_finance_framework.test import test
 
-        env = StockTradingEnv
+        env = BitcoinEnv
 
         kwargs = {}
 

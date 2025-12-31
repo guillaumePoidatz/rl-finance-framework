@@ -11,7 +11,7 @@ TRAIN_START_DATE = "20140106 00:00:00"  # bug fix: set Monday right, start date 
 TRAIN_END_DATE = "20200731 00:00:00"
 
 TEST_START_DATE = "20200801 00:00:00"
-TEST_END_DATE = "20211001 00:00:00"
+TEST_END_DATE = "20241001 00:00:00"
 
 # stockstats technical indicator column names
 # check https://pypi.org/project/stockstats/ for different names

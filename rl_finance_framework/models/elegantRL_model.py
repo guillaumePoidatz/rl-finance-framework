@@ -60,7 +60,8 @@ class DRLAgent:
             raise NotImplementedError("NotImplementedError")
 
         stock_dim = self.price_array.shape[1]
-        self.state_dim = 1 + 2 + 3 * stock_dim + self.tech_array.shape[1]
+        # for stock_trading_env self.state_dim = 1 + 2 + 3 * stock_dim + self.tech_array.shape[1]
+        self.state_dim = 1 + self.price_array.shape[1] + self.tech_array.shape[1]
         self.action_dim = stock_dim
         self.env_args = {
             "env_name": "StockEnv",
@@ -144,15 +145,20 @@ class DRLAgent:
         episode_total_assets = [env.initial_total_asset]
         max_step = env.max_step
         for steps in range(max_step):
-            s_tensor = torch.as_tensor(
+            state_tensor = torch.as_tensor(
                 state, dtype=torch.float32, device=device
             ).unsqueeze(0)
-            a_tensor = act(s_tensor).argmax(dim=1) if if_discrete else act(s_tensor)
+            a_tensor = (
+                act(state_tensor).argmax(dim=1) if if_discrete else act(state_tensor)
+            )
             action = (
                 a_tensor.detach().cpu().numpy()[0]
             )  # not need detach(), because using torch.no_grad() outside
-            state, reward, done, _, _ = env.step(action)
+            log.info(f"action: {action}")
+            state, _, done, _, _ = env.step(action)
             total_asset = env.amount + (env.price_ary[env.day] * env.stocks).sum()
+            log.info(f"env.amount: {env.amount}")
+            log.info(f"env.stocks: {env.stocks}")
             episode_total_assets.append(total_asset)
             episode_return = total_asset / env.initial_total_asset
             episode_returns.append(episode_return)
@@ -161,3 +167,52 @@ class DRLAgent:
         log.info("Test Finished!")
         log.info(f"episode_return: {episode_return}")
         return episode_total_assets
+
+    @staticmethod
+    def infer_DRL(model_name, cwd, environment, env_args):
+        gpu_id = 0  # >=0 means GPU ID, -1 means CPU
+        agent_class = MODELS[model_name]
+        stock_dim = env_args["price_array"].shape[1]
+        state_dim = 1 + 2 + 3 * stock_dim + env_args["tech_array"].shape[1]
+        action_dim = stock_dim
+        env_args = {
+            "env_num": 1,
+            "env_name": "StockEnv",
+            "state_dim": state_dim,
+            "action_dim": action_dim,
+            "if_discrete": False,
+            "max_step": env_args["price_array"].shape[0] - 1,
+            "config": env_args,
+        }
+
+        actor_path = f"{cwd}/act.pth"
+        net_dim = [2**7]
+
+        """init"""
+        env = environment
+        env_class = env
+        args = Config(agent_class=agent_class, env_class=env_class, env_args=env_args)
+        args.cwd = cwd
+        act = agent_class(
+            net_dim, env.state_dim, env.action_dim, gpu_id=gpu_id, args=args
+        ).act
+        parameters_dict = {}
+        act = torch.load(actor_path, weights_only=False)
+        for name, param in act.named_parameters():
+            parameters_dict[name] = torch.tensor(param.detach().cpu().numpy())
+
+        act.load_state_dict(parameters_dict)
+
+        if_discrete = env.if_discrete
+        device = next(act.parameters()).device
+        state = env.reset()[0]
+        state_tensor = torch.as_tensor(
+            state, dtype=torch.float32, device=device
+        ).unsqueeze(0)
+        a_tensor = act(state_tensor).argmax(dim=1) if if_discrete else act(state_tensor)
+        action = (
+            a_tensor.detach().cpu().numpy()[0]
+        )  # not need detach(), because using torch.no_grad() outside
+        state, reward, done, _, _ = env.step(action)
+        total_asset = env.amount + (env.price_ary[env.day] * env.stocks).sum()
+        return total_asset

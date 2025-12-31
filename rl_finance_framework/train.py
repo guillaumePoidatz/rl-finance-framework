@@ -15,7 +15,7 @@ def train(
     if_vix=True,
     **kwargs,
 ):
-    path = Path("datasets/crypto/test_price_array.npy")
+    path = Path("datasets/crypto/train_price_array.npy")
 
     if path.exists():
         price_array = np.load("datasets/crypto/train_price_array.npy")

@@ -1,20 +1,19 @@
-from __future__ import annotations
-
+import logging
 import gymnasium as gym
 import numpy as np
 from numpy import random as rd
 
+log = logging.getLogger(__name__)
 
 class StockTradingEnv(gym.Env):
     def __init__(
         self,
         config,
-        initial_account=1e6,
         gamma=0.99,
         turbulence_thresh=99,
         min_stock_rate=0.1,
         max_stock=1e2,
-        initial_capital=1e6,
+        initial_capital=1e3,
         buy_cost_pct=1e-3,
         sell_cost_pct=1e-3,
         reward_scaling=2**-11,
